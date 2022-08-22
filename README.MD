@@ -464,5 +464,5 @@ if ($s1 === $s2) {
 }
 ```
 `OUTPUT`
-git 
+
 ![img.png](img/img.png)
