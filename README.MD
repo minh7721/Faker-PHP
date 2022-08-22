@@ -1,9 +1,4 @@
 # Design Pattern
-
-## Factory Pattern
-
-Mẫu này được chia làm 2 loại là Factory Method và Abtract Factory. Vậy sự khác nhau giữa 2 pattern này là gì ? Hãy cùng tìm hiểu qua 2 ví dụ để tìm ra sự khác biệt.
-
 ## 1. Factory method
 ### Định nghĩa
 Bản chất của mẫu thiết kế Factory là "Định nghĩa một giao diện (interface) cho việc tạo một đối tượng, nhưng để các lớp con quyết định lớp nào sẽ được tạo. "Factory method" giao việc khởi tạo một đối tượng cụ thể cho lớp con."
