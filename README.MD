@@ -461,3 +461,122 @@ if ($s1 === $s2) {
 `OUTPUT`
 
 ![img.png](img/img.png)
+
+## 6. Builder
+### Định nghĩa
+
+Builder là một mẫu thiết kế sáng tạo cho phép bạn xây dựng các đối tượng phức tạp theo từng bước. Pattern này cho phép bạn tạo ra các kiểu và biểu diễn khác nhau của một đối tượng bằng cách sử dụng cùng một đoạn code.
+
+Ví dụ: hãy nghĩ về cách tạo đối tượng Ngôi nhà. Để xây dựng một ngôi nhà đơn giản, bạn cần xây dựng bốn bức tường và một tầng, lắp cửa ra vào, lắp một cặp cửa sổ và xây dựng một mái nhà. Nhưng nếu bạn muốn một ngôi nhà lớn hơn, sáng sủa hơn, có sân sau và các tiện ích khác (như hệ thống sưởi, hệ thống ống nước và hệ thống dây điện)?
+
+Giải pháp đơn giản nhất là mở rộng lớp House cơ sở và tạo một tập hợp các lớp con để bao gồm tất cả các tổ hợp của các tham số. Nhưng cuối cùng bạn sẽ có một số lượng đáng kể các lớp con. Bất kỳ thông số mới nào, chẳng hạn như kiểu hiên nhà, sẽ yêu cầu phát triển hệ thống phân cấp này nhiều hơn nữa.
+
+Có một cách tiếp cận khác không liên quan đến việc lai tạo các lớp con. Bạn có thể tạo một phương thức khởi tạo khổng lồ ngay trong lớp House cơ sở với tất cả các tham số có thể có để điều khiển đối tượng house. Mặc dù cách tiếp cận này thực sự loại bỏ sự cần thiết của các lớp con, nhưng nó lại tạo ra một vấn đề khác.
+
+
+Ví dụ:
+Giao diện Builder khai báo một tập hợp các phương pháp để lắp ráp một truy vấn SQL.
+Tất cả các bước xây dựng đang trả về đối tượng trình tạo hiện tại để cho phép chuỗi: $ builder-> select (...) -> where (...)
+
+```
+<?php
+
+namespace App\Builder2;
+
+interface SQLQueryBuilder
+{
+    public function select(string $table, array $fields): SQLQueryBuilder;
+
+    public function where(string $field, string $value, string $operator = '='): SQLQueryBuilder;
+
+    public function limit(int $start, int $offset): SQLQueryBuilder;
+
+    public function getSQL(): string;
+}
+```
+
+Mỗi Concrete Builder tương ứng với một phương ngữ SQL cụ thể và có thể triển khai các bước của trình xây dựng hơi khác một chút so với các bước khác.
+Concrete Builder này có thể xây dựng các truy vấn SQL tương thích với MySQL.
+
+```
+<?php
+
+namespace App\Builder2;
+class MysqlQueryBuilder implements SQLQueryBuilder
+{
+    protected $query;
+
+    protected function reset(): void
+    {
+        $this->query = new \stdClass();
+    }
+
+
+    public function select(string $table, array $fields): SQLQueryBuilder
+    {
+        $this->reset();
+        $this->query->base = "SELECT " . implode(", ", $fields) . " FROM " . $table;
+        $this->query->type = 'select';
+
+        return $this;
+    }
+
+    public function where(string $field, string $value, string $operator = '='): SQLQueryBuilder
+    {
+        if (!in_array($this->query->type, ['select', 'update', 'delete'])) {
+            throw new \Exception("WHERE can only be added to SELECT, UPDATE OR DELETE");
+        }
+        $this->query->where[] = "$field $operator '$value'";
+
+        return $this;
+    }
+
+    public function limit(int $start, int $offset): SQLQueryBuilder
+    {
+        if (!in_array($this->query->type, ['select'])) {
+            throw new \Exception("LIMIT can only be added to SELECT");
+        }
+        $this->query->limit = " LIMIT " . $start . ", " . $offset;
+
+        return $this;
+    }
+
+    public function getSQL(): string
+    {
+        $query = $this->query;
+        $sql = $query->base;
+        if (!empty($query->where)) {
+            $sql .= " WHERE " . implode(' AND ', $query->where);
+        }
+        if (isset($query->limit)) {
+            $sql .= $query->limit;
+        }
+        $sql .= ";";
+        return $sql;
+    }
+}
+```
+
+Và đây là khi sử dụng
+
+```
+  function clientCode2(SQLQueryBuilder $queryBuilder)
+    {
+        // ...
+        $db = new Database();
+        $query = $queryBuilder
+            ->select("khach", ["k_id","k_ten","k_gt","k_ngsinh","k_email","k_sdt","k_diachi"])
+            ->getSQL();
+        $qr = $db->connect()->query($query);
+        $ar = [];
+        while ($row = $qr->fetch()) {
+            array_push($ar, $row);
+        }
+        return $ar;
+        // ...
+    }
+```
+
+`OUTPUT`
+
+![img100.png](img/img100.png)

@@ -5,10 +5,10 @@ use App\Data;
 
 $data = new Data();
 //echo $data->info();
-echo $data->randNumber();
+//echo $data->randNumber();
 //echo $data->time();
 //echo "<pre>";
-//echo $data->modifiers();
+echo $data->modifiers();
 //echo "<br>";
 //echo "<br>";
 //echo $data->localization();

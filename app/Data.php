@@ -1,8 +1,6 @@
 <?php
 
 namespace App;
-require_once __DIR__ . "/../vendor/autoload.php";
-
 use Faker\Factory as Faker;
 use Faker\Provider as FakerProvider;
 use Faker\Generator as FakerGenerator;
