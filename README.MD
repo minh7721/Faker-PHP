@@ -460,7 +460,7 @@ if ($s1 === $s2) {
 ```
 `OUTPUT`
 
-![img.png](img/img.png)
+![img_1.png](img/img_99.png)
 
 ## 6. Builder
 ### Định nghĩa
